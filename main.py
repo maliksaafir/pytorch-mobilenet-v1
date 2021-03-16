@@ -329,7 +329,7 @@ def main():
             is_best,
         )
         if log_wandb:
-            trained_model_artifact.add_dir(is_best)
+            trained_model_artifact.add_dir(".")
             run.log_artifact(trained_model_artifact)
 
 

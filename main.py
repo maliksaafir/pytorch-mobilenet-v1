@@ -195,6 +195,7 @@ def mean_std(loader):
             std[i] += inputs[:, i, :, :].std()
     mean.div_(len(loader.dataset))
     std.div_(len(loader.dataset))
+    print(f"{mean = }, {std = }")
     return mean, std
 
 
@@ -309,7 +310,7 @@ def main():
             "mobilenetv1",
             type="model",
             description="trained MobileNetV1",
-            metadata=args,
+            metadata=vars(args),
         )
 
     for epoch in range(args.start_epoch, args.epochs):

@@ -1,4 +1,4 @@
-from tqdm import tdqm
+from tqdm import tqdm
 
 import argparse
 import os

@@ -338,9 +338,9 @@ def main():
             },
             is_best,
         )
-        if log_wandb:
-            trained_model_artifact.add_dir(MODELS_DIR)
-            run.log_artifact(trained_model_artifact)
+    if log_wandb:
+        trained_model_artifact.add_dir(MODELS_DIR)
+        run.log_artifact(trained_model_artifact)
 
 
 def train(train_loader, model, criterion, optimizer, epoch):

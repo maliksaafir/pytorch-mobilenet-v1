@@ -1,3 +1,4 @@
+from pathlib import Path
 from tqdm import tqdm
 
 import argparse
@@ -16,6 +17,11 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
+
+MODELS_DIR = Path("./models/")
+if not MODELS_DIR.exists():
+    MODELS_DIR.mkdir()
+assert MODELS_DIR.exists()
 
 model_names = sorted(
     name
@@ -329,7 +335,7 @@ def main():
             is_best,
         )
         if log_wandb:
-            trained_model_artifact.add_dir(".")
+            trained_model_artifact.add_dir(MODELS_DIR)
             run.log_artifact(trained_model_artifact)
 
 
@@ -430,13 +436,15 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename="checkpoint.pth.tar"):
-    torch.save(state, filename)
+    path = str(MODELS_DIR / filename)
+    best_path = str(MODELS_DIR / "model_best.pth.tar")
+    torch.save(state, path)
     if log_wandb:
-        wandb.save(filename)
+        wandb.save(path)
     if is_best:
-        shutil.copyfile(filename, "model_best.pth.tar")
+        shutil.copyfile(path, best_path)
         if log_wandb:
-            wandb.save("model_best.pth.tar")
+            wandb.save(best_path)
 
 
 class AverageMeter(object):

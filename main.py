@@ -119,7 +119,7 @@ args = parser.parse_args()
 
 log_wandb = input("log to wandb? (y/n): ") == "y"
 if log_wandb:
-    run = wandb.init(job_type="train", project=args.wb, config=args)
+    run = wandb.init(job_type="train", project=args.wandb_project, config=args)
 
 best_prec1 = 0
 

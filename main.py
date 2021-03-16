@@ -107,7 +107,10 @@ parser.add_argument(
     help="evaluate model on validation set",
 )
 parser.add_argument(
-    "--pretrained", dest="pretrained", action="store_false", help="use pre-trained model"
+    "--pretrained",
+    dest="pretrained",
+    action="store_false",
+    help="use pre-trained model",
 )
 parser.add_argument("--wandb-project", "--wb", type=str, default="mobilenetv1-testing")
 
@@ -341,7 +344,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda(async=True)
+        target = target.cuda()
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 

@@ -243,7 +243,8 @@ def main():
     cudnn.benchmark = True
 
     # track our model
-    wandb.watch(model)
+    if log_wandb:
+        wandb.watch(model)
 
     # Data loading code
     traindir = os.path.join(args.data, "train")

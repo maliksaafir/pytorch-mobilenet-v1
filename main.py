@@ -195,7 +195,7 @@ def mean_std(loader):
             std[i] += inputs[:, i, :, :].std()
     mean.div_(len(loader.dataset))
     std.div_(len(loader.dataset))
-    print(f"{mean = }, {std = }")
+    print(f"{mean=}, {std=}")
     return mean, std
 
 

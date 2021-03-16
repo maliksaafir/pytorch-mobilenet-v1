@@ -177,7 +177,7 @@ def mobilenet(path="./checkpoint.pth.tar"):
     return net
 
 
-def mean_std(loader: DataLoader):
+def mean_std(loader):
     print("calculating mean and std of the data...")
     # Using 3 channels (RGB)
     mean = torch.zeros(3)

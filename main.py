@@ -103,13 +103,14 @@ parser.add_argument(
     "--evaluate",
     dest="evaluate",
     action="store_false",
-    default=1,
+    default=False,
     help="evaluate model on validation set",
 )
 parser.add_argument(
     "--pretrained",
     dest="pretrained",
     action="store_false",
+    default=False,
     help="use pre-trained model",
 )
 parser.add_argument("--wandb-project", "--wb", type=str, default="mobilenetv1-testing")

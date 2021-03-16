@@ -43,10 +43,10 @@ parser.add_argument(
 parser.add_argument(
     "-j",
     "--workers",
-    default=4,
+    default=0,
     type=int,
     metavar="N",
-    help="number of data loading workers (default: 4)",
+    help="number of data loading workers (default: 0)",
 )
 parser.add_argument(
     "--epochs", default=100, type=int, metavar="N", help="number of total epochs to run"
@@ -248,34 +248,35 @@ def main():
 
     # Data loading code
     traindir = os.path.join(args.data, "train")
-    valdir = os.path.join(args.data, "val")
+    valdir = os.path.join(args.data, "validation")
 
     # calculate the mean and std of the data for normalization
-    dset = datasets.ImageFolder(args.data, transforms=transforms.ToTensor())
+    dset = datasets.ImageFolder(args.data, transform=transforms.ToTensor())
     full_loader = torch.utils.data.DataLoader(
-        dset, shuffle=False, num_workers=os.cpu_count()
+        dset, shuffle=False, num_workers=args.workers
     )
     mean, std = mean_std(full_loader)
     normalize = transforms.Normalize(mean=mean, std=std)
 
-    if args.evaluate:
-        val_loader = torch.utils.data.DataLoader(
-            datasets.ImageFolder(
-                valdir,
-                transforms.Compose(
-                    [
-                        transforms.Resize(256),
-                        transforms.CenterCrop(224),
-                        transforms.ToTensor(),
-                        normalize,
-                    ]
-                ),
+    val_loader = torch.utils.data.DataLoader(
+        datasets.ImageFolder(
+            valdir,
+            transforms.Compose(
+                [
+                    transforms.Resize(256),
+                    transforms.CenterCrop(224),
+                    transforms.ToTensor(),
+                    normalize,
+                ]
             ),
-            batch_size=args.batch_size,
-            shuffle=False,
-            num_workers=args.workers,
-            pin_memory=True,
-        )
+        ),
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.workers,
+        pin_memory=True,
+    )
+
+    if args.evaluate:
         validate(val_loader, model, criterion)
         return
     else:
@@ -356,8 +357,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure accuracy and record loss
         prec1 = accuracy(output.data, target)[0]
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()

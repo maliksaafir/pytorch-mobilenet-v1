@@ -303,7 +303,7 @@ def main():
             "mobilenetv1",
             type="model",
             description="trained MobileNetV1",
-            metadata=dict(args),
+            metadata=args,
         )
 
     for epoch in range(args.start_epoch, args.epochs):

@@ -184,19 +184,19 @@ def mobilenet(path="./checkpoint.pth.tar"):
     return net
 
 
-def mean_std(loader):
-    print("calculating mean and std of the data...")
-    # Using 3 channels (RGB)
-    mean = torch.zeros(3)
-    std = torch.zeros(3)
-    for inputs, _ in tqdm(loader):
-        for i in range(3):
-            mean[i] += inputs[:, i, :, :].mean()
-            std[i] += inputs[:, i, :, :].std()
-    mean.div_(len(loader.dataset))
-    std.div_(len(loader.dataset))
-    print(f"mean={mean}, std={std}")
-    return mean, std
+# def mean_std(loader):
+#     print("calculating mean and std of the data...")
+#     # Using 3 channels (RGB)
+#     mean = torch.zeros(3)
+#     std = torch.zeros(3)
+#     for inputs, _ in tqdm(loader):
+#         for i in range(3):
+#             mean[i] += inputs[:, i, :, :].mean()
+#             std[i] += inputs[:, i, :, :].std()
+#     mean.div_(len(loader.dataset))
+#     std.div_(len(loader.dataset))
+#     print(f"mean={mean}, std={std}")
+#     return mean, std
 
 
 def main():
@@ -262,8 +262,11 @@ def main():
     full_loader = torch.utils.data.DataLoader(
         dset, shuffle=False, num_workers=os.cpu_count()
     )
-    mean, std = mean_std(full_loader)
-    normalize = transforms.Normalize(mean=mean, std=std)
+    # mean, std = mean_std(full_loader)
+    normalize = transforms.Normalize(
+        mean=torch.tensor([0.4726, 0.4740, 0.4635]),
+        std=torch.tensor([0.2414, 0.2367, 0.2404]),
+    )
 
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(

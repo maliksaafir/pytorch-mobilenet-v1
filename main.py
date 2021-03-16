@@ -253,7 +253,7 @@ def main():
     # calculate the mean and std of the data for normalization
     dset = datasets.ImageFolder(args.data, transform=transforms.ToTensor())
     full_loader = torch.utils.data.DataLoader(
-        dset, shuffle=False, num_workers=args.workers
+        dset, shuffle=False, num_workers=os.cpu_count()
     )
     mean, std = mean_std(full_loader)
     normalize = transforms.Normalize(mean=mean, std=std)

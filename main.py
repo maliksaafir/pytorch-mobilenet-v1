@@ -49,7 +49,7 @@ parser.add_argument(
     help="number of data loading workers (default: 4)",
 )
 parser.add_argument(
-    "--epochs", default=90, type=int, metavar="N", help="number of total epochs to run"
+    "--epochs", default=100, type=int, metavar="N", help="number of total epochs to run"
 )
 parser.add_argument(
     "--start-epoch",
@@ -64,12 +64,12 @@ parser.add_argument(
     default=64,
     type=int,
     metavar="N",
-    help="mini-batch size (default: 256)",
+    help="mini-batch size (default: 64)",
 )
 parser.add_argument(
     "--lr",
     "--learning-rate",
-    default=0.1,
+    default=0.001,
     type=float,
     metavar="LR",
     help="initial learning rate",
@@ -93,7 +93,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default="./mobilenet_sgd_68.848.pth.tar",
+    default=None,
     type=str,
     metavar="PATH",
     help="path to latest checkpoint (default: none)",
@@ -102,12 +102,12 @@ parser.add_argument(
     "-e",
     "--evaluate",
     dest="evaluate",
-    action="store_true",
+    action="store_false",
     default=1,
     help="evaluate model on validation set",
 )
 parser.add_argument(
-    "--pretrained", dest="pretrained", action="store_true", help="use pre-trained model"
+    "--pretrained", dest="pretrained", action="store_false", help="use pre-trained model"
 )
 parser.add_argument("--wandb-project", "--wb", type=str, default="mobilenetv1-testing")
 

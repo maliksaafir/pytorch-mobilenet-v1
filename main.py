@@ -341,6 +341,7 @@ def main():
     if log_wandb:
         trained_model_artifact.add_dir(MODELS_DIR)
         run.log_artifact(trained_model_artifact)
+        wandb.run.summary["top 1 accuracy"] = best_prec1
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
@@ -380,21 +381,26 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
         if i % args.print_freq == 0:
+            lrl = [param_group["lr"] for param_group in optimizer.param_groups]
+            lr = sum(lrl) / len(lrl)
+
             print(
                 f"Epoch: [{epoch}][{i}/{len(train_loader)}]\t"
                 f"Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
                 f"Data {data_time.val:.3f} ({data_time.avg:.3f})\t"
                 f"Loss {losses.val:.4f} ({losses.avg:.4f})\t"
                 f"Prec@1 {top1.val:.3f} ({top1.avg:.3f})"
+                f"Learning rate {lr}"
             )
             if log_wandb:
                 wandb.log(
                     {
                         "epoch": epoch,
-                        "loss": losses.val,
-                        "avg loss": losses.avg,
-                        "prec@1": top1.val,
-                        "avg prec@1": top1.avg,
+                        "training loss": losses.val,
+                        "avg training loss": losses.avg,
+                        "top 1 accuracy": top1.val,
+                        "avg top 1 accuracy": top1.avg,
+                        "learning rate": lr,
                     }
                 )
 
@@ -433,6 +439,15 @@ def validate(val_loader, model, criterion):
                 f"Loss {losses.val:.4f} ({losses.avg:.4f})\t"
                 f"Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t"
             )
+            if log_wandb:
+                wandb.log(
+                    {
+                        "validation loss": losses.val,
+                        "avg validation loss": losses.avg,
+                        "top 1 accuracy": top1.val,
+                        "avg top 1 accuracy": top1.avg,
+                    }
+                )
 
     print(f" * Prec@1 {top1.avg:.3f}")
 

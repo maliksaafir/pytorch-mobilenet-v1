@@ -130,9 +130,9 @@ if log_wandb:
 best_prec1 = 0
 
 
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
+class MobileNet(nn.Module):
+    def __init__(self, ds_convs=True):
+        super(MobileNet, self).__init__()
 
         def conv_bn(inp, oup, stride):
             return nn.Sequential(
@@ -151,23 +151,42 @@ class Net(nn.Module):
                 nn.ReLU(inplace=True),
             )
 
-        self.model = nn.Sequential(
-            conv_bn(3, 32, 2),
-            conv_dw(32, 64, 1),
-            conv_dw(64, 128, 2),
-            conv_dw(128, 128, 1),
-            conv_dw(128, 256, 2),
-            conv_dw(256, 256, 1),
-            conv_dw(256, 512, 2),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 1024, 2),
-            conv_dw(1024, 1024, 1),
-            nn.AvgPool2d(7),
-        )
+        if ds_convs:
+            self.model = nn.Sequential(
+                conv_bn(3, 32, 2),
+                conv_dw(32, 64, 1),
+                conv_dw(64, 128, 2),
+                conv_dw(128, 128, 1),
+                conv_dw(128, 256, 2),
+                conv_dw(256, 256, 1),
+                conv_dw(256, 512, 2),
+                conv_dw(512, 512, 1),
+                conv_dw(512, 512, 1),
+                conv_dw(512, 512, 1),
+                conv_dw(512, 512, 1),
+                conv_dw(512, 512, 1),
+                conv_dw(512, 1024, 2),
+                conv_dw(1024, 1024, 1),
+                nn.AvgPool2d(7),
+            )
+        else:
+            self.model = nn.Sequential(
+                conv_bn(3, 32, 2),
+                conv_bn(32, 64, 1),
+                conv_bn(64, 128, 2),
+                conv_bn(128, 128, 1),
+                conv_bn(128, 256, 2),
+                conv_bn(256, 256, 1),
+                conv_bn(256, 512, 2),
+                conv_bn(512, 512, 1),
+                conv_bn(512, 512, 1),
+                conv_bn(512, 512, 1),
+                conv_bn(512, 512, 1),
+                conv_bn(512, 512, 1),
+                conv_bn(512, 1024, 2),
+                conv_bn(1024, 1024, 1),
+                nn.AvgPool2d(7),
+            )
         self.fc = nn.Linear(1024, 1000)
 
     def forward(self, x):
@@ -177,12 +196,23 @@ class Net(nn.Module):
         return x
 
 
-def mobilenet(path="./checkpoint.pth.tar"):
-    net = Net()
-    state_dict = torch.load(path)
-    net.load_state_dict(state_dict)
+def mobilenet(path=None):
+    net = MobileNet()
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
     return net
 
+
+def mobilenet_no_ds(path=None):
+    net = MobileNet(ds_convs=False)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
+mobilenets = {"mobilenet": mobilenet, "mobilenet_no_ds": mobilenet_no_ds}
 
 # def mean_std(loader):
 #     print("calculating mean and std of the data...")
@@ -209,7 +239,7 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         if args.arch.startswith("mobilenet"):
-            model = Net()
+            model = mobilenets[args.arch]()
             print(model)
         else:
             model = models.__dict__[args.arch]()
@@ -341,7 +371,7 @@ def main():
     if log_wandb:
         trained_model_artifact.add_dir(MODELS_DIR)
         run.log_artifact(trained_model_artifact)
-        wandb.run.summary["top 1 accuracy"] = best_prec1
+        wandb.run.summary["best top 1 accuracy"] = best_prec1
 
 
 def train(train_loader, model, criterion, optimizer, epoch):

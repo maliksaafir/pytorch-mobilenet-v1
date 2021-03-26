@@ -204,13 +204,14 @@ class MobileNet(nn.Module):
                 nn.AvgPool2d(7),
             )
         self.dropout = nn.Dropout(drop, inplace=True)
-        self.fc = nn.Linear(1024 * width_mult, num_labels)
+        self.fc = nn.Linear(1024 * width_mult, 1000)
 
     def forward(self, x):
         x = self.model(x)
         x = x.view(-1, 1024 * self.width_mult)
         x = self.dropout(x)
         x = self.fc(x)
+        print(f"x shape is {x.shape}")
         return x
 
 
@@ -566,7 +567,6 @@ def accuracy(output, target, topk=(1,)):
     maxk = max(topk)
     batch_size = target.size(0)
 
-    print(f"output = {output}")
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()
     correct = pred.eq(target.view(1, -1).expand_as(pred))

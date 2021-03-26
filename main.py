@@ -355,6 +355,7 @@ def main():
         num_workers=args.workers,
         pin_memory=True,
     )
+    print(f"validation classes: {val_dset.classes}")
 
     if args.evaluate:
         validate(val_loader, model, criterion)
@@ -378,7 +379,7 @@ def main():
             num_workers=args.workers,
             pin_memory=True,
         )
-        print(f"num classes for training: {train_dset.classes}")
+        print(f"training classes: {train_dset.classes}")
 
     if log_wandb:
         trained_model_artifact = wandb.Artifact(

@@ -134,7 +134,7 @@ best_prec1 = 0
 
 
 class MobileNet(nn.Module):
-    def __init__(self, ds_convs=True, width_mult=1, num_labels=2, drop=0):
+    def __init__(self, ds_convs=True, width_mult=1, num_classes=2, drop=0):
         super(MobileNet, self).__init__()
         self.width_mult = width_mult
 
@@ -204,7 +204,7 @@ class MobileNet(nn.Module):
                 nn.AvgPool2d(7),
             )
         self.dropout = nn.Dropout(drop, inplace=True)
-        self.fc = nn.Linear(1024 * width_mult, 1000)
+        self.fc = nn.Linear(1024 * width_mult, num_classes)
 
     def forward(self, x):
         x = self.model(x)
@@ -337,18 +337,19 @@ def main():
         std=torch.tensor([0.2414, 0.2367, 0.2404]),
     )
 
-    val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(
-            valdir,
-            transforms.Compose(
-                [
-                    transforms.Resize(256),
-                    transforms.CenterCrop(224),
-                    transforms.ToTensor(),
-                    normalize,
-                ]
-            ),
+    val_dset = datasets.ImageFolder(
+        valdir,
+        transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                normalize,
+            ]
         ),
+    )
+    val_loader = torch.utils.data.DataLoader(
+        val_dset,
         batch_size=args.batch_size,
         shuffle=False,
         num_workers=args.workers,
@@ -359,23 +360,25 @@ def main():
         validate(val_loader, model, criterion)
         return
     else:
-        train_loader = torch.utils.data.DataLoader(
-            datasets.ImageFolder(
-                traindir,
-                transforms.Compose(
-                    [
-                        transforms.RandomResizedCrop(224),
-                        transforms.RandomHorizontalFlip(),
-                        transforms.ToTensor(),
-                        normalize,
-                    ]
-                ),
+        train_dset = datasets.ImageFolder(
+            traindir,
+            transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(224),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    normalize,
+                ]
             ),
+        )
+        train_loader = torch.utils.data.DataLoader(
+            train_dset,
             batch_size=args.batch_size,
             shuffle=True,
             num_workers=args.workers,
             pin_memory=True,
         )
+        print(f"num classes for training: {train_dset.classes}")
 
     if log_wandb:
         trained_model_artifact = wandb.Artifact(

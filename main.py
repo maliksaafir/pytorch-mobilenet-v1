@@ -30,6 +30,7 @@ model_names = sorted(
 )
 
 model_names.append("mobilenet")
+model_names.append("mobilenet_no_ds")
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
 parser.add_argument(

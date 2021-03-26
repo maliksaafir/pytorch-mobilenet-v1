@@ -211,7 +211,6 @@ class MobileNet(nn.Module):
         x = x.view(-1, 1024 * self.width_mult)
         x = self.dropout(x)
         x = self.fc(x)
-        print(f"x shape is {x.shape}")
         return x
 
 

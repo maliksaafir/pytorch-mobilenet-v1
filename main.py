@@ -134,7 +134,7 @@ best_prec1 = 0
 
 
 class MobileNet(nn.Module):
-    def __init__(self, ds_convs=True, width_mult=1, num_labels=2, drop=1.0):
+    def __init__(self, ds_convs=True, width_mult=1, num_labels=2, drop=0):
         super(MobileNet, self).__init__()
         self.width_mult = width_mult
 

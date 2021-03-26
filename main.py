@@ -31,6 +31,8 @@ model_names = sorted(
 
 model_names.append("mobilenet")
 model_names.append("mobilenet_no_ds")
+model_names.append("mobilenet_no_ds_2x")
+model_names.append("mobilenet_no_ds_2x_drop50")
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
 parser.add_argument(
@@ -132,29 +134,42 @@ best_prec1 = 0
 
 
 class MobileNet(nn.Module):
-    def __init__(self, ds_convs=True):
+    def __init__(self, ds_convs=True, width_mult=1, num_labels=2, drop=1.0):
         super(MobileNet, self).__init__()
+        self.width_mult = width_mult
 
-        def conv_bn(inp, oup, stride):
+        def conv_bn(inp, oup, stride, multiply_inp=True):
+            in_channels = width_mult * inp if multiply_inp else inp
+            out_channels = width_mult * oup
             return nn.Sequential(
-                nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
-                nn.BatchNorm2d(oup),
+                nn.Conv2d(in_channels, out_channels, 3, stride, 1, bias=False),
+                nn.BatchNorm2d(out_channels),
                 nn.ReLU(inplace=True),
             )
 
-        def conv_dw(inp, oup, stride):
+        def conv_dw(inp, oup, stride, multiply_inp=True):
+            in_channels = width_mult * inp if multiply_inp else inp
+            out_channels = width_mult * oup
             return nn.Sequential(
-                nn.Conv2d(inp, inp, 3, stride, 1, groups=inp, bias=False),
-                nn.BatchNorm2d(inp),
+                nn.Conv2d(
+                    in_channels,
+                    in_channels,
+                    3,
+                    stride,
+                    1,
+                    groups=in_channels,
+                    bias=False,
+                ),
+                nn.BatchNorm2d(in_channels),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
-                nn.BatchNorm2d(oup),
+                nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False),
+                nn.BatchNorm2d(out_channels),
                 nn.ReLU(inplace=True),
             )
 
         if ds_convs:
             self.model = nn.Sequential(
-                conv_bn(3, 32, 2),
+                conv_bn(3, 32, 2, multiply_inp=False),
                 conv_dw(32, 64, 1),
                 conv_dw(64, 128, 2),
                 conv_dw(128, 128, 1),
@@ -172,7 +187,7 @@ class MobileNet(nn.Module):
             )
         else:
             self.model = nn.Sequential(
-                conv_bn(3, 32, 2),
+                conv_bn(3, 32, 2, multiply_inp=False),
                 conv_bn(32, 64, 1),
                 conv_bn(64, 128, 2),
                 conv_bn(128, 128, 1),
@@ -188,11 +203,13 @@ class MobileNet(nn.Module):
                 conv_bn(1024, 1024, 1),
                 nn.AvgPool2d(7),
             )
-        self.fc = nn.Linear(1024, 1000)
+        self.dropout = nn.Dropout(drop, inplace=True)
+        self.fc = nn.Linear(1024 * width_mult, num_labels)
 
     def forward(self, x):
         x = self.model(x)
-        x = x.view(-1, 1024)
+        x = x.view(-1, 1024 * self.width_mult)
+        x = self.dropout(x)
         x = self.fc(x)
         return x
 
@@ -213,7 +230,28 @@ def mobilenet_no_ds(path=None):
     return net
 
 
-mobilenets = {"mobilenet": mobilenet, "mobilenet_no_ds": mobilenet_no_ds}
+def mobilenet_no_ds_2x(path=None):
+    net = MobileNet(ds_convs=False, width_mult=2)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
+def mobilenet_no_ds_2x_drop50(path=None):
+    net = MobileNet(ds_convs=False, width_mult=2, drop=0.5)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
+mobilenets = {
+    "mobilenet": mobilenet,
+    "mobilenet_no_ds": mobilenet_no_ds,
+    "mobilenet_no_ds_2x": mobilenet_no_ds_2x,
+    "mobilenet_no_ds_2x_drop50": mobilenet_no_ds_2x_drop50,
+}
 
 # def mean_std(loader):
 #     print("calculating mean and std of the data...")

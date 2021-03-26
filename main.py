@@ -327,10 +327,10 @@ def main():
     valdir = os.path.join(args.data, "validation")
 
     # calculate the mean and std of the data for normalization
-    dset = datasets.ImageFolder(args.data, transform=transforms.ToTensor())
-    full_loader = torch.utils.data.DataLoader(
-        dset, shuffle=False, num_workers=os.cpu_count()
-    )
+    # dset = datasets.ImageFolder(args.data, transform=transforms.ToTensor())
+    # full_loader = torch.utils.data.DataLoader(
+    #     dset, shuffle=False, num_workers=os.cpu_count()
+    # )
     # mean, std = mean_std(full_loader)
     normalize = transforms.Normalize(
         mean=torch.tensor([0.4726, 0.4740, 0.4635]),

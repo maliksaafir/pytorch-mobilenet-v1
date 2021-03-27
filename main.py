@@ -411,16 +411,16 @@ def main():
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
-        save_checkpoint(
-            {
-                "epoch": epoch + 1,
-                "arch": args.arch,
-                "state_dict": model.state_dict(),
-                "best_prec1": best_prec1,
-                "optimizer": optimizer.state_dict(),
-            },
-            is_best,
-        )
+        # save_checkpoint(
+        #     {
+        #         "epoch": epoch + 1,
+        #         "arch": args.arch,
+        #         "state_dict": model.state_dict(),
+        #         "best_prec1": best_prec1,
+        #         "optimizer": optimizer.state_dict(),
+        #     },
+        #     is_best,
+        # )
     if log_wandb:
         trained_model_artifact.add_dir(MODELS_DIR)
         run.log_artifact(trained_model_artifact)

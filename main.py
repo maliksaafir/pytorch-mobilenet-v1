@@ -123,6 +123,8 @@ parser.add_argument(
     help="use pre-trained model",
 )
 parser.add_argument("--wandb-project", "--wb", type=str, default="mobilenetv1-testing")
+parser.add_argument("--num-classes", type=int, default=2)
+
 
 args = parser.parse_args()
 
@@ -292,7 +294,7 @@ def main():
             model = mobilenets[args.arch]()
             print(model)
         else:
-            model = models.__dict__[args.arch]()
+            model = models.__dict__[args.arch](num_classes=args.num_classes)
 
     if args.arch.startswith("alexnet") or args.arch.startswith("vgg"):
         model.features = torch.nn.DataParallel(model.features)

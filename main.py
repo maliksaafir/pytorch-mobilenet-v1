@@ -1,5 +1,4 @@
 from pathlib import Path
-from tqdm import tqdm
 
 import argparse
 import os
@@ -406,10 +405,10 @@ def main():
         train(train_loader, model, criterion, optimizer, epoch)
 
         # evaluate on validation set
-        prec1 = validate(val_loader, model, criterion)
+        prec1 = validate(val_loader, model, criterion, epoch)
 
         # remember best prec@1 and save checkpoint
-        is_best = prec1 > best_prec1
+        # is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
         # save_checkpoint(
         #     {
@@ -475,20 +474,17 @@ def train(train_loader, model, criterion, optimizer, epoch):
                 f"Prec@1 {top1.val:.3f} ({top1.avg:.3f})"
                 f"Learning rate {lr}"
             )
-            if log_wandb:
-                wandb.log(
-                    {
-                        "epoch": epoch,
-                        "training loss": losses.val,
-                        "avg training loss": losses.avg,
-                        "top 1 accuracy": top1.val,
-                        "avg top 1 accuracy": top1.avg,
-                        "learning rate": lr,
-                    }
-                )
+    if log_wandb:
+        wandb.log(
+            {
+                "epoch": epoch,
+                "avg training loss": losses.avg,
+                "avg top 1 accuracy": top1.avg,
+            }
+        )
 
 
-def validate(val_loader, model, criterion):
+def validate(val_loader, model, criterion, epoch):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
@@ -522,15 +518,14 @@ def validate(val_loader, model, criterion):
                 f"Loss {losses.val:.4f} ({losses.avg:.4f})\t"
                 f"Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t"
             )
-            if log_wandb:
-                wandb.log(
-                    {
-                        "validation loss": losses.val,
-                        "avg validation loss": losses.avg,
-                        "top 1 accuracy": top1.val,
-                        "avg top 1 accuracy": top1.avg,
-                    }
-                )
+    if log_wandb:
+        wandb.log(
+            {
+                "epoch": epoch,
+                "avg validation loss": losses.avg,
+                "avg top 1 accuracy": top1.avg,
+            }
+        )
 
     print(f" * Prec@1 {top1.avg:.3f}")
 

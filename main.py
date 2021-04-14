@@ -483,7 +483,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             {
                 "epoch": epoch,
                 "avg training loss": losses.avg,
-                "avg top 1 accuracy": top1.avg,
+                "avg top 1 training accuracy": top1.avg,
             }
         )
 
@@ -527,7 +527,7 @@ def validate(val_loader, model, criterion, epoch):
             {
                 "epoch": epoch,
                 "avg validation loss": losses.avg,
-                "avg top 1 accuracy": top1.avg,
+                "avg top 1 validation accuracy": top1.avg,
             }
         )
 

@@ -33,6 +33,9 @@ model_names.append("mobilenet_no_ds")
 model_names.append("mobilenet_no_ds_2x")
 model_names.append("mobilenet_no_ds_2x_drop25")
 model_names.append("mobilenet_no_ds_2x_drop50")
+model_names.append("mobilenet_no_ds_3x")
+model_names.append("mobilenet_no_ds_3x_drop25")
+model_names.append("mobilenet_no_ds_3x_drop50")
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
 parser.add_argument(
@@ -258,12 +261,39 @@ def mobilenet_no_ds_2x_drop50(path=None):
     return net
 
 
+def mobilenet_no_ds_3x(path=None):
+    net = MobileNet(ds_convs=False, width_mult=3)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
+def mobilenet_no_ds_3x_drop25(path=None):
+    net = MobileNet(ds_convs=False, width_mult=3, drop=0.25)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
+def mobilenet_no_ds_3x_drop50(path=None):
+    net = MobileNet(ds_convs=False, width_mult=3, drop=0.5)
+    if path:
+        state_dict = torch.load(path)
+        net.load_state_dict(state_dict)
+    return net
+
+
 mobilenets = {
     "mobilenet": mobilenet,
     "mobilenet_no_ds": mobilenet_no_ds,
     "mobilenet_no_ds_2x": mobilenet_no_ds_2x,
     "mobilenet_no_ds_2x_drop25": mobilenet_no_ds_2x_drop25,
     "mobilenet_no_ds_2x_drop50": mobilenet_no_ds_2x_drop50,
+    "mobilenet_no_ds_3x": mobilenet_no_ds_3x,
+    "mobilenet_no_ds_3x_drop25": mobilenet_no_ds_3x_drop25,
+    "mobilenet_no_ds_3x_drop50": mobilenet_no_ds_3x_drop50,
 }
 
 # def mean_std(loader):
